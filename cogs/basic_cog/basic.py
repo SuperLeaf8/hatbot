@@ -8,4 +8,7 @@ class BasicCommands(commands.Cog):
     @commands.command()
     async def hello(self, ctx):
         await ctx.channel.send("hello")
+    @commands.slash_command()
+    async def test(self, ctx):
+        await ctx.respond('test')
         

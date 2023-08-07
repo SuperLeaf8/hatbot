@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
 import json
-import asyncio
 
 # import cogs from the cogs module because i love organization
 from cogs import basic_cog
@@ -19,8 +18,11 @@ async def on_ready():
     # cogs
     cogs = [basic_cog.cog]
     for cog in cogs:
-        await bot.add_cog(cog(bot))
+        bot.add_cog(cog(bot))
 
+@bot.slash_command()
+async def ping(ctx):
+    await ctx.respond("hello")
 
 with open("token.json","r") as token_file:
     token = json.load(token_file)
