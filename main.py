@@ -6,7 +6,7 @@ import json
 from cogs import basic_cog
 
 # initial bot stuff
-intents = discord.Intents.default()
+intents = discord.Intents.all()
 intents.message_content = True
 bot = commands.Bot(command_prefix="d/",intents=intents)
 
@@ -20,9 +20,6 @@ async def on_ready():
     for cog in cogs:
         bot.add_cog(cog(bot))
 
-@bot.slash_command()
-async def ping(ctx):
-    await ctx.respond("hello")
 
 with open("token.json","r") as token_file:
     token = json.load(token_file)
