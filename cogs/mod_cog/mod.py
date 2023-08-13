@@ -15,6 +15,16 @@ class ModCommands(commands.Cog):
             await ctx.send('You do not have permission to use this command.')
 
     @commands.command()
+    async def unban(self, ctx, user_id: int, *, reason="No reason provided."):
+        #Unban a user by ID
+        user = await self.bot.fetch_user(user_id)
+        if user:
+            await ctx.guild.unban(user, reason=reason)
+            await ctx.send(f"{user.name} has been unbanned.")
+        else:
+            await ctx.send("User not found.")
+
+    @commands.command()
     async def kick(self, ctx, member: discord.Member, *, reason=None):
         if ctx.author.guild_permissions.kick_members:
             await member.kick(reason=reason)
@@ -62,15 +72,12 @@ class ModCommands(commands.Cog):
                     ),
                 reason=reason
                 )
+            await ctx.send(f'{member.mention} has been muted.')
 
     @commands.command()
     async def unmute(self, ctx, member: discord.Member):
-        if ctx.author.guild_permissions.manage_roles:
-            role = discord.utils.get(ctx.guild.roles, id=1072899313312735293)
-            if role:
-                await member.remove_roles(role)
-                await ctx.send(f'{member.mention} has been unmuted.')
-            else:
-                await ctx.send('Could not find the "Jailed" role. Please make sure the role ID is correct.')
+        if ctx.author.guild_permissions.administrator:
+            await member.remove_timeout()
+            await ctx.send(f'{member.mention} has been unmuted.')
         else:
-            await ctx.send('You do not have permission to use this command.')
+            await ctx.send('User is not muted.')
