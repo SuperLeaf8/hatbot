@@ -8,12 +8,12 @@ class BasicCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot # gives the cog a bot instance so we can do bot stuff LOL! ex:    self.bot.name returns bot name
     
-    @commands.slash_command()
+    @commands.command()
     async def test(self, ctx, bollocks):
         await ctx.respond('test')
         await ctx.send(bollocks)
 
-    @commands.slash_command()
+    @commands.command()
     async def guess(self, ctx):
         with open("capitals.json","r") as capitals_file: # move json to somwhere more organized and not just thrown in here, or maybe keep it here because relevant?
             countries_capitals = json.load(capitals_file)
