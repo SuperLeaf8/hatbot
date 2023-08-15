@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 import datetime
+import asyncio
 
 class ModCommands(commands.Cog):
     def __init__(self, bot):
@@ -83,7 +84,10 @@ class ModCommands(commands.Cog):
             await ctx.send('User is not muted.')
     
     @commands.command()
-    async def purge(self, ctx, messages: discord.Option(int, description = "How many messages do you want to purge?", required = True)):
-        await ctx.defer()
-        z = await ctx.channel.purge(limit=messages)
-        await ctx.respond(f"{len(z)} messages purged!")
+    @commands.has_permissions(administrator=True)
+    async def purge(self, ctx, messages: int):
+        z = await ctx.channel.purge(limit=messages+1)
+        msg = await ctx.send(f"{len(z)} messages purged!")
+        await asyncio.sleep(3)
+        await msg.delete()
+
