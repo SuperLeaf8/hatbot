@@ -62,3 +62,7 @@ class GamesCommands(commands.Cog):
             await ctx.send(f"Correct! The flag belongs to {data[rand_index]['name']}.")
         except asyncio.TimeoutError:
             await ctx.send(f"60 second timer's up! The correct answer was {data[rand_index]['name']}.")
+        
+    @commands.command()
+    async def unscramble(self, ctx):
+        pass
