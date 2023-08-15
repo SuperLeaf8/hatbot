@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import datetime
 import asyncio
+import random
 
 class ModCommands(commands.Cog):
     def __init__(self, bot):
@@ -87,7 +88,6 @@ class ModCommands(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def purge(self, ctx, messages: int):
         z = await ctx.channel.purge(limit=messages+1)
-        msg = await ctx.send(f"{len(z)} messages purged!")
+        msg = await ctx.send(f"{str(len(z)-1)} messages purged!")
         await asyncio.sleep(3)
         await msg.delete()
-

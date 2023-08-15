@@ -3,3 +3,5 @@
 __pycache__
 !capitals.json
 !flags.json
+!words.json
+*.*
