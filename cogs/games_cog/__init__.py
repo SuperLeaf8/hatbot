@@ -1,3 +1,3 @@
-from games import GamesCommands
+from cogs.games_cog.games import GamesCommands
 
 cog = GamesCommands
