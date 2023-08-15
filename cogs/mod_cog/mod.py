@@ -81,3 +81,9 @@ class ModCommands(commands.Cog):
             await ctx.send(f'{member.mention} has been unmuted.')
         else:
             await ctx.send('User is not muted.')
+    
+    @commands.command()
+    async def purge(self, ctx, messages: discord.Option(int, description = "How many messages do you want to purge?", required = True)):
+        await ctx.defer()
+        z = await ctx.channel.purge(limit=messages)
+        await ctx.respond(f"{len(z)} messages purged!")

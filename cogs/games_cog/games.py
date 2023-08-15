@@ -4,6 +4,7 @@ import random
 import asyncio
 import json
 import os
+import requests
 
 class GamesCommands(commands.Cog):
     def __init__(self, bot):
@@ -31,19 +32,25 @@ class GamesCommands(commands.Cog):
 
     # flag guesser #############################################################################
     @commands.command()
+    @commands.cooldown(rate=1,per=65,type=commands.BucketType.channel)
     async def flagguess(self, ctx):
         with open("./cogs/games_cog/flags.json", "r", encoding="utf-8") as json_file:
             data = json.load(json_file)
 
 
-        rand_index = random.randint(0,len(data)-1)
-
-        # Extract the country code
-        country_code = data[rand_index]["code2l"]
-
         # URL template for flag images
         flag_url_template = "https://www.worldometers.info/img/flags/{0}-flag.gif"
-        flag_url = flag_url_template.format(country_code.lower())
+        
+        # Check if the url is valid, for the website has the flag
+        ## if not, just reroll the index
+
+        valid_url = False
+        while not valid_url:
+            rand_index = random.randint(0,len(data)-1) # get random index of countries
+            country_code = data[rand_index]["code2l"] # get the country code (2 letters)
+            flag_url = flag_url_template.format(country_code.lower()) # actual url of the flag
+            if not requests.get(flag_url).status_code == 404:
+                valid_url = True
 
         print("Country Code:", country_code)
         print("Flag URL:", flag_url)

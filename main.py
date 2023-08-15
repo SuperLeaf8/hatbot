@@ -24,6 +24,10 @@ async def on_ready():
     for cog in cogs:
         bot.add_cog(cog(bot))
 
+@bot.event
+async def on_command_error(ctx, error):
+    form = f"```diff\n-{error}\n```"
+    await ctx.send(form)
 
 with open("token.json","r") as token_file:
     token = json.load(token_file)
