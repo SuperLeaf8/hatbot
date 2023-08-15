@@ -32,11 +32,14 @@ class GamesCommands(commands.Cog):
     # flag guesser #############################################################################
     @commands.command()
     async def flagguess(self, ctx):
-        with open("./cogs/games_cog/flags.json", "r", encoding="utf-32") as json_file:
+        with open("./cogs/games_cog/flags.json", "r", encoding="utf-8") as json_file:
             data = json.load(json_file)
 
+
+        rand_index = random.randint(0,len(data)-1)
+
         # Extract the country code
-        country_code = data[1]["code2l"]
+        country_code = data[rand_index]["code2l"]
 
         # URL template for flag images
         flag_url_template = "https://www.worldometers.info/img/flags/{0}-flag.gif"
@@ -52,10 +55,10 @@ class GamesCommands(commands.Cog):
 
         # Function to check if the user's response is correct
         def check(m):
-            return m.author == ctx.author and m.content.lower() == data[1]['name'].lower()
+            return m.author == ctx.author and m.content.lower() == data[rand_index]['name'].lower()
 
         try:
             user_response = await self.bot.wait_for('message', check=check, timeout=60)
-            await ctx.send(f"Correct! The flag belongs to {data[1]['name']}.")
+            await ctx.send(f"Correct! The flag belongs to {data[rand_index]['name']}.")
         except asyncio.TimeoutError:
-            await ctx.send(f"60 second timer's up! The correct answer was {data[1]['name']}.")
+            await ctx.send(f"60 second timer's up! The correct answer was {data[rand_index]['name']}.")
