@@ -3,12 +3,13 @@ from discord.ext import commands
 import random
 import asyncio
 import json
+import os
 
 class GamesCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    # capital guesser #######################################################################################################################################################
+    # capital guesser ##########################################################################
     @commands.command()
     async def capitalguess(self, ctx):
         with open("capitals.json","r") as capitals_file: # json file containing dictionary of all countries and their capital(s)
@@ -26,20 +27,20 @@ class GamesCommands(commands.Cog):
             await ctx.send(f"Time's up! The correct answer was {capital}.")
         else:
             await ctx.send(f"Correct! {capital} is the capital of {country}.")
-    #########################################################################################################################################################################
+    ############################################################################################
 
-    # flag guesser ##########################################################################################################################################################
+    # flag guesser #############################################################################
     @commands.command()
     async def flagguess(self, ctx):
-        with open("cogs/games_cog/flags.json", "r") as json_file:
+        with open("./cogs/games_cog/flags.json", "r", encoding="utf-32") as json_file:
             data = json.load(json_file)
 
         # Extract the country code
-        country_code = data["code2l"]
+        country_code = data[1]["code2l"]
 
         # URL template for flag images
-        flag_url_template = "https://www.worldometers.info/img/flags/{}-flag.gif"
-        flag_url = flag_url_template.format(country_code)
+        flag_url_template = "https://www.worldometers.info/img/flags/{0}-flag.gif"
+        flag_url = flag_url_template.format(country_code.lower())
 
         print("Country Code:", country_code)
         print("Flag URL:", flag_url)
@@ -51,11 +52,10 @@ class GamesCommands(commands.Cog):
 
         # Function to check if the user's response is correct
         def check(m):
-            return m.author == ctx.author and m.content.lower() == {data['name']}.lower()
+            return m.author == ctx.author and m.content.lower() == data[1]['name'].lower()
 
         try:
             user_response = await self.bot.wait_for('message', check=check, timeout=60)
+            await ctx.send(f"Correct! The flag belongs to {data[1]['name']}.")
         except asyncio.TimeoutError:
-            await ctx.send(f"60 second timer's up! The correct answer was {data['name']}.")
-        else:
-            await ctx.send(f"Correct! The flag belongs to {data['name']}.")
+            await ctx.send(f"60 second timer's up! The correct answer was {data[1]['name']}.")
