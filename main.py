@@ -3,7 +3,7 @@ from discord.ext import commands
 import json
 
 # import cogs from the cogs module because i love organization
-from cogs import basic_cog, mod_cog
+from cogs import basic_cog, mod_cog, games_cog
 
 # initial bot stuff
 intents = discord.Intents.all()
@@ -18,7 +18,8 @@ async def on_ready():
     # cogs
     cogs = [
         basic_cog.cog,
-        mod_cog.cog
+        mod_cog.cog,
+        games_cog.cog
         ]
     for cog in cogs:
         bot.add_cog(cog(bot))

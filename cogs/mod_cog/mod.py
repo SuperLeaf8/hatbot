@@ -15,6 +15,16 @@ class ModCommands(commands.Cog):
             await ctx.send('You do not have permission to use this command.')
 
     @commands.command()
+    async def unban(self, ctx, user_id: int, *, reason="No reason provided."):
+        #Unban a user by ID
+        user = await self.bot.fetch_user(user_id)
+        if user:
+            await ctx.guild.unban(user, reason=reason)
+            await ctx.send(f"{user.name} has been unbanned.")
+        else:
+            await ctx.send("User not found.")
+
+    @commands.command()
     async def kick(self, ctx, member: discord.Member, *, reason=None):
         if ctx.author.guild_permissions.kick_members:
             await member.kick(reason=reason)
@@ -23,18 +33,51 @@ class ModCommands(commands.Cog):
             await ctx.send('You do not have permission to use this command.')
 
     @commands.command()
-    async def mute(self, ctx, member: discord.Member):
+    async def mute(self, ctx, member: discord.Member, duration="1d", *, reason="No reason lol"):
+        # time = duration.split(" ")[0] # get the FIRST time duration
+        time = duration
+        timedeltas = {
+            "weeks": 0,
+            "days": 0,
+            "hours": 0,
+            "minutes": 0
+        }
+
+        try: # check if duration format is proper
+            magnitude = int(time[:-1])
+        except ValueError:
+            await ctx.respond("Not valid duration format")
+            return
+        
+        match time[-1]:
+            case "w":
+                timedeltas["weeks"] = magnitude
+            case "d":
+                timedeltas["months"] = magnitude
+            case "h":
+                timedeltas["hours"] = magnitude
+            case "m":
+                timedeltas["minutes"] = magnitude
+            case _:
+                await ctx.respond("Not valid duration unit")
+                return
+
         if ctx.author.guild_permissions.administrator:
-            await member.timeout_for(datetime.timedelta(days=1))
+            await member.timeout_for(
+                duration=datetime.timedelta(
+                    weeks=timedeltas["weeks"],
+                    days=timedeltas["days"],
+                    hours=timedeltas["hours"],
+                    minutes=timedeltas["minutes"],
+                    ),
+                reason=reason
+                )
+            await ctx.send(f'{member.mention} has been muted.')
 
     @commands.command()
     async def unmute(self, ctx, member: discord.Member):
-        if ctx.author.guild_permissions.manage_roles:
-            role = discord.utils.get(ctx.guild.roles, id=1072899313312735293)
-            if role:
-                await member.remove_roles(role)
-                await ctx.send(f'{member.mention} has been unmuted.')
-            else:
-                await ctx.send('Could not find the "Jailed" role. Please make sure the role ID is correct.')
+        if ctx.author.guild_permissions.administrator:
+            await member.remove_timeout()
+            await ctx.send(f'{member.mention} has been unmuted.')
         else:
-            await ctx.send('You do not have permission to use this command.')
+            await ctx.send('User is not muted.')
