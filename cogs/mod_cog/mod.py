@@ -86,8 +86,74 @@ class ModCommands(commands.Cog):
     
     @commands.command()
     @commands.has_permissions(administrator=True)
-    async def purge(self, ctx, messages: int):
-        z = await ctx.channel.purge(limit=messages+1)
-        msg = await ctx.send(f"{str(len(z)-1)} messages purged!")
-        await asyncio.sleep(3)
+    async def purge(self, ctx, amt):
+        await ctx.channel.purge(limit = int(amt) + 1)
+        msg = await ctx.send(f"Purged {amt} messages.")
+        await asyncio.sleep(4)
         await msg.delete()
+    
+    @commands.command()
+    async def deafen(self, ctx, member: discord.Member):
+        if not member.voice:
+            await ctx.send("The mentioned user is not in a voice channel.")
+            return
+        await member.edit(deafen=True)
+        await ctx.send(f"{member.display_name} has been deafened in the voice channel.")
+    
+    @commands.command()
+    async def undeafen(self, ctx, member: discord.Member):
+        if not member.voice:
+            await ctx.send("The mentioned user is not in a voice channel.")
+            return
+        await member.edit(deafen=False)
+        await ctx.send(f"{member.display_name} has been undeafened in the voice channel.")
+    
+    @commands.command()
+    async def voicemute(self, ctx, member: discord.Member):
+        if not member.voice:
+            await ctx.send("The mentioned user is not in a voice channel.")
+            return
+
+        await member.edit(mute=True)
+        await ctx.send(f"{member.display_name} has been muted in the voice channel.")
+
+    @commands.command()
+    async def unvoicemute(self, ctx, member: discord.Member):
+        if not member.voice:
+            await ctx.send("The mentioned user is not in a voice channel.")
+            return
+
+        await member.edit(mute=False)
+        await ctx.send(f"{member.display_name} has been unmuted in the voice channel.")
+    
+    @commands.command()
+    async def whois(self, ctx, member: discord.Member = None):
+        member = member or ctx.author
+
+        embed = discord.Embed(title="User Information", color=member.color)
+        embed.set_thumbnail(url=member.avatar.url)
+        embed.add_field(name="Profile Name", value=member.name, inline=True)
+        embed.add_field(name="Server Nickname", value=member.nick, inline=True)
+        embed.add_field(name="ID", value=member.id, inline=False)
+        embed.add_field(name="Account Created", value=member.created_at.strftime("%b %d, %Y %H:%M:%S"), inline=False)
+        embed.add_field(name="Joined Guild", value=member.joined_at.strftime("%b %d, %Y %H:%M:%S"), inline=False)
+
+        roles = [role.mention for role in member.roles if role != ctx.guild.default_role]
+        roles_str = " ".join(roles) if roles else "None"
+        embed.add_field(name="Roles", value=roles_str, inline=False)
+
+        await ctx.send(embed=embed)
+    
+    @commands.command()
+    @commands.has_permissions(manage_channels=True)
+    async def set_slowmode(self, ctx, channel: discord.TextChannel, interval: int):
+        if interval < 0:
+            await ctx.send("Please provide a positive interval.")
+            return
+
+        if interval > 21600:  # Maximum slowmode interval is 6 hours (21600 seconds)
+            await ctx.send("Maximum slowmode interval is 6 hours (21600 seconds).")
+            return
+
+        await channel.edit(slowmode_delay=interval)
+        await ctx.send(f"Slowmode has been set to {interval} seconds in {channel.mention}.")
