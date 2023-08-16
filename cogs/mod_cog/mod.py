@@ -146,7 +146,10 @@ class ModCommands(commands.Cog):
     
     @commands.command()
     @commands.has_permissions(manage_channels=True)
-    async def set_slowmode(self, ctx, channel: discord.TextChannel, interval: int):
+    async def slowmode(self, ctx, channel: discord.TextChannel, interval: int):
+        if interval == 0:
+            await ctx.send(f"Slowmode has been removed in {channel.mention}.")
+        
         if interval < 0:
             await ctx.send("Please provide a positive interval.")
             return
@@ -156,4 +159,5 @@ class ModCommands(commands.Cog):
             return
 
         await channel.edit(slowmode_delay=interval)
-        await ctx.send(f"Slowmode has been set to {interval} seconds in {channel.mention}.")
+        if interval != 0:
+            await ctx.send(f"Slowmode has been set to {interval} seconds in {channel.mention}.")
