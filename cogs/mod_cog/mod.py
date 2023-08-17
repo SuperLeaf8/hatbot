@@ -86,7 +86,7 @@ class ModCommands(commands.Cog):
     
     @commands.command()
     @commands.has_permissions(administrator=True)
-    async def purge(self, ctx, amt):
+    async def purge(self, ctx, amt:int):
         await ctx.channel.purge(limit = int(amt) + 1)
         msg = await ctx.send(f"Purged {amt} messages.")
         await asyncio.sleep(4)
