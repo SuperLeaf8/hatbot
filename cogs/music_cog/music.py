@@ -8,33 +8,12 @@ import requests, os, asyncio
 from traceback import print_exc
 
 
-# ydl_opts = {
-# 	'format': 'bestaudio/best',
-# 	'quiet': True,
-# 	'outtmpl': u'song.%(ext)s',
-# 	'postprocessors': [{
-# 		'key': 'FFmpegExtractAudio',
-# 		'preferredcodec': 'mp3',
-# 		'preferredquality': '192',
-# 		}],
-# }
-
-# def search(arg):
-# 	with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-# 		try:
-# 			requests.get(arg)
-# 			video = ydl.extract_info(arg, download=False) 
-# 		except:
-# 			video = ydl.extract_info(f"ytsearch: {[arg]}", download=False)['entries'][0]
-# 	return video['webpage_url'], video['title']
-
-
-
 class MusicCommands(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 		self.loops = []
 		self.volumes = {}
+		self.queries = {}
 
 	#### TEST FUNCTIONs
 	def check_channel(self,ctx):
@@ -129,27 +108,7 @@ class MusicCommands(commands.Cog):
 		music.source = discord.PCMVolumeTransformer(music.source,volume=self.volumes.get(ctx.guild.id,1.0))
 		await ctx.send("playing")
 	
-	def play_music(self,ctx,src_name):
-		channel = self.check_channel(ctx)
-		voice = self.check_bot_channel(ctx)
-		# here, check if voice and channel are valid
-
-		#
-
-		if str(ctx.guild.id) in self.loops:
-			self.loops.remove(str(ctx.guild.id))
-		src = discord.FFmpegPCMAudio(source=src_name)
-		voice.source = discord.PCMVolumeTransformer(voice.source,volume=1.0)
-		def replay():
-			src = discord.FFmpegPCMAudio(source=src_name)
-			if str(ctx.guild.id) in self.loops:		
-				voice.play(src,after=lambda after: replay())
-				voice.source = discord.PCMVolumeTransformer(voice.source,volume=self.volumes.get(ctx.guild.id,1.0))
-		voice.play(src,after=lambda after: replay())
-		
-		
-
-	@commands.command()
+	@commands.command() # debug command
 	async def testfile(self,ctx):
 		music = get(self.bot.voice_clients,guild=ctx.guild)
 		channel = ctx.author.voice.channel
