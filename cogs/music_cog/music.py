@@ -14,7 +14,51 @@ class MusicCommands(commands.Cog):
 		self.loops = []
 		self.volumes = {}
 		self.queries = {}
-
+	
+	class MusicSelect(discord.ui.View): # view for selecting which song to play/add
+		@discord.ui.button(
+			label="Select", style=discord.ButtonStyle.success
+		)
+		async def select_button(self, button, interaction):
+			pass
+		
+		@discord.ui.button(
+			label="Next", style=discord.ButtonStyle.primary
+		)
+		async def next_button(self, button, interaction):
+			pass
+	
+	class MusicControl(discord.ui.View): # view object for controlling music while it is playing
+		@discord.ui.button(
+			label="Back", style=discord.ButtonStyle.secondary
+		)
+		async def back_button(self, button, interaction):
+			pass
+		@discord.ui.button(
+			label="Pause/Resume", style=discord.ButtonStyle.primary
+		)
+		async def pause_button(self, button, interaction): # pause using bot object commands
+			music = get(interaction.client.voice_clients,guild=interaction.guild)
+			if music.is_playing():
+				music.pause()
+				msg = await interaction.response.send_message("paused")
+			else:
+				music.resume()
+				msg = await interaction.response.send_message("resumed")
+			await asyncio.sleep(1)
+			await msg.delete()
+			
+		@discord.ui.button(
+			label="Stop", style=discord.ButtonStyle.red
+		)
+		async def stop_button(self, button, interaction):
+			await MusicCommands.stop()
+		@discord.ui.button(
+			label="Forward", style=discord.ButtonStyle.secondary
+		)
+		async def forward_button(self, button, interaction):
+			pass
+	
 	#### TEST FUNCTIONs
 	def check_channel(self,ctx):
 		channel = ctx.author.voice.channel
@@ -46,8 +90,7 @@ class MusicCommands(commands.Cog):
 			self.loops.remove(str(ctx.guild.id))
 		await voice.disconnect()
 		await ctx.send("left")
-		
-
+	
 	@commands.command()
 	async def testplay(self,ctx,name:str):
 		music = get(self.bot.voice_clients,guild=ctx.guild) # voice object
@@ -74,7 +117,7 @@ class MusicCommands(commands.Cog):
 			print_exc()
 
 	@commands.command() # for fun
-	async def play(self,ctx,*,song):
+	async def yt_play(self,ctx,*,song):
 		music = get(self.bot.voice_clients,guild=ctx.guild)
 		channel = ctx.author.voice.channel
 
@@ -106,7 +149,7 @@ class MusicCommands(commands.Cog):
 			music.stop()
 		music.play(audio,after=lambda check: replay())
 		music.source = discord.PCMVolumeTransformer(music.source,volume=self.volumes.get(ctx.guild.id,1.0))
-		await ctx.send("playing")
+		await ctx.send(f"playing {stream.title}",view=self.MusicControl())
 	
 	@commands.command() # debug command
 	async def testfile(self,ctx):
