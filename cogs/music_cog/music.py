@@ -13,7 +13,53 @@ class MusicCommands(commands.Cog):
 		self.bot = bot
 		self.loops = []
 		self.volumes = {}
-		self.queries = {}
+		self.queues = {}
+	
+	# queue functions for ease
+	def queue_next(self,ctx): # updates queue and index, will return the next index
+		try:
+			queue = self.queues[str(ctx.guild.id)]["queue"] # queue is a list, index is an int
+			index = self.queues[str(ctx.guild.id)]["index"]
+			if not len(queue):
+				raise Exception
+		except:
+			return None
+		if (index + 1) < len(queue):
+			index += 1
+		else:
+			index = 0
+		self.queues[str(ctx.guild.id)]["queue"] = queue
+		self.queues[str(ctx.guild.id)]["index"] = index
+		return index
+	def queue_next(self,ctx): # updates queue and index, will return the previous index
+		try:
+			queue = self.queues[str(ctx.guild.id)]["queue"] # queue is a list, index is an int
+			index = self.queues[str(ctx.guild.id)]["index"]
+			if not len(queue):
+				raise Exception
+		except:
+			return None
+		if (index + 1) > 0:
+			index -= 1
+		else:
+			index = len(queue)
+		self.queues[str(ctx.guild.id)]["queue"] = queue
+		self.queues[str(ctx.guild.id)]["index"] = index
+		return index
+	def queue_reinit(self,ctx): # reinitialize queues to prevent key errors, or to create one when adding songs
+		try:
+			queue = self.queues[str(ctx.guild.id)]["queue"] # queue is a list, index is an int
+			index = self.queues[str(ctx.guild.id)]["index"]
+			if not len(queue):
+				raise Exception
+		except: # there is no queue for the server, initialize one
+			self.queues[str(ctx.guild.id)] = {}
+			self.queues[str(ctx.guild.id)]["queue"] = []
+			self.queues[str(ctx.guild.id)]["index"] = 0
+		# reset queue, we could make this be skipped if except block is ran (effeciency)
+		self.queues[str(ctx.guild.id)]["queue"] = []
+		self.queues[str(ctx.guild.id)]["index"] = 0
+		
 	
 	class MusicSelect(discord.ui.View): # view for selecting which song to play/add
 		@discord.ui.button(
@@ -29,11 +75,13 @@ class MusicCommands(commands.Cog):
 			pass
 	
 	class MusicControl(discord.ui.View): # view object for controlling music while it is playing
+
 		@discord.ui.button(
 			label="Back", style=discord.ButtonStyle.secondary
 		)
 		async def back_button(self, button, interaction):
 			pass
+
 		@discord.ui.button(
 			label="Pause/Resume", style=discord.ButtonStyle.primary
 		)
@@ -52,7 +100,10 @@ class MusicCommands(commands.Cog):
 			label="Stop", style=discord.ButtonStyle.red
 		)
 		async def stop_button(self, button, interaction):
-			await MusicCommands.stop()
+			music = get(interaction.client.voice_clients,guild=interaction.guild)
+			if music.is_playing():
+				await music.stop()
+
 		@discord.ui.button(
 			label="Forward", style=discord.ButtonStyle.secondary
 		)
