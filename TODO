@@ -1,0 +1,9 @@
+☐ Queue control with button interaction (in testing) @started(23-08-20 18:28)
+☐ Change things into embeds (start with the queue control, there is a thumbnail_url attribute for Youtube objects)
+☐ Disable buttons when command is finished (like when using play command and song is stopped) @started(23-08-20 19:23)
+☐ When skipping or playing queue or going back, bot needs to play the music in accordance of index (MusicControl ui.View class)
+☐ incorporate the options.cfg file into stuff like default volume setting @started(23-08-20 19:22)
+✔ fix object so that queue stores YouTube object, not Stream object @done(23-08-20 18:29)
+
+NOTES:
+    - soo since we are using inner and outer classes (bad idea, but we have to for the structure of the commands), we need to use different instances of "self" in order to have the inner class (ui.View) be able to use the outer class attributes (commands.Cog) send help
