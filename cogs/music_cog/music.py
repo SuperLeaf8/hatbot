@@ -15,6 +15,7 @@ class MusicCommands(commands.Cog):
 		self.bot = bot
 	
 	loops = []
+	conts = []
 	volumes = {}
 	queues = {}
 
@@ -96,7 +97,8 @@ class MusicCommands(commands.Cog):
 				self.index = len(self.options) - 1
 			else:
 				self.index -= 1
-			await interaction.response.original_message.edit(f"song: {self.option[self.index].title}")
+			await interaction.message.edit(content=f"song: {self.options[self.index].title}")
+			await interaction.response.defer()
 		
 		@discord.ui.button(
 			label="Select", style=discord.ButtonStyle.success
@@ -107,8 +109,9 @@ class MusicCommands(commands.Cog):
 			except:
 				self.outer.queue_reinit(interaction.guild)
 				self.outer.queues[str(interaction.guild.id)]["queue"].append(self.options[self.index])
-			await interaction.response.send_message("queued this song")
-			await self.disable_all_items()
+			self.disable_all_items()
+			await interaction.response.edit_message(view=self)
+			await interaction.followup.send("queued this song")
 
 		@discord.ui.button(
 			label="Next", style=discord.ButtonStyle.primary
@@ -118,17 +121,23 @@ class MusicCommands(commands.Cog):
 				self.index += 1
 			else:
 				self.index = 0
-			await interaction.response.original_message.edit(f"song: {self.option[self.index].title}")
+			await interaction.message.edit(content=f"song: {self.options[self.index].title}")
+			await interaction.response.defer()
 	
 	class MusicControl(discord.ui.View): # view object for controlling music while it is playing
 		def __init__(self, outer): # oh my GOD this is terrible, i dont even want to look at this, i know this is bad but i dont know how else to make it work
-			discord.ui.View.__init__(self)
+			discord.ui.View.__init__(self,timeout=None)
 			self.outer = outer # please have sympathy for me
 		@discord.ui.button(
 			label="Back", style=discord.ButtonStyle.secondary
 		)
 		async def back_button(self, button, interaction):
-			MusicCommands.queue_back(MusicCommands,interaction.guild)
+			music = get(interaction.client.voice_clients,guild=interaction.guild)
+			self.outer.queue_back(interaction.guild)
+			index = self.outer.queues[str(interaction.guild.id)]["index"]
+			await interaction.message.edit(content=f"playing {self.outer.queues[str(interaction.guild.id)]['queue'][index].name}")
+			await interaction.response.defer()
+			music.stop()
 
 		@discord.ui.button(
 			label="Pause/Resume", style=discord.ButtonStyle.primary
@@ -153,6 +162,8 @@ class MusicCommands(commands.Cog):
 				self.disable_all_items()
 				return
 			if music.is_playing():
+				if str(interaction.guild.id) in self.outer.conts:
+					self.outer.conts.remove(str(interaction.guild.id))
 				music.stop()
 				self.disable_all_items()
 				await interaction.response.edit_message(view=self) # after interaction has been responded to, use followup.send()
@@ -166,13 +177,18 @@ class MusicCommands(commands.Cog):
 			label="Forward", style=discord.ButtonStyle.secondary
 		)
 		async def forward_button(self, button, interaction):
-			MusicCommands.queue_skip(MusicCommands, interaction.guild)
+			music = get(interaction.client.voice_clients,guild=interaction.guild)
+			self.outer.queue_skip(interaction.guild) # dont include self.outer argument
+			index = self.outer.queues[str(interaction.guild.id)]["index"]
+			await interaction.message.edit(content=f"playing {self.outer.queues[str(interaction.guild.id)]['queue'][index].name}")
+			await interaction.response.defer()
+			music.stop()
 		
 		@discord.ui.button(
 			label="Shuffle", style=discord.ButtonStyle.primary
 		)
 		async def shuffle_button(self, button, interaction):
-			MusicCommands.queue_shuffle(MusicCommands, interaction.guild)
+			self.outer.queue_shuffle(self.outer, interaction.guild)
 		
 		@discord.ui.button(
 			label="Loop", style=discord.ButtonStyle.secondary
@@ -184,13 +200,14 @@ class MusicCommands(commands.Cog):
 				if not str(interaction.guild.id) in self.outer.loops: # ew ew ew ew ew ew
 					self.outer.loops.append(str(interaction.guild.id))
 					button.style = discord.ButtonStyle.primary
-					msg = await interaction.response.send_message("loop enabled")
+					# msg = await interaction.response.send_message("loop enabled")
 				else:
 					self.outer.loops.remove(str(interaction.guild.id))
 					button.style = discord.ButtonStyle.secondary
-					msg = await interaction.response.send_message("loop disabled")
-				await asyncio.sleep(1)
-				await msg.delete_original_message()
+					# msg = await interaction.response.send_message("loop disabled")
+				# await asyncio.sleep(1)
+				# await msg.delete_original_message()
+				await interaction.response.edit_message(view=self)
 			else:
 				await interaction.response.send_message("not playing music")
 
@@ -253,23 +270,15 @@ class MusicCommands(commands.Cog):
 			print_exc()
 
 	@commands.command() # for fun
-	async def play(self,ctx,*,song):
+	async def play(self,ctx,*,song=""):
 		if not os.path.exists("./cogs/music_cog/music_cache"):
 			os.mkdir("./cogs/music_cog/music_cache")
 		
+		if not str(ctx.guild.id) in self.conts:
+			self.conts.append(str(ctx.guild.id))
+
 		music = get(self.bot.voice_clients,guild=ctx.guild)
 		channel = ctx.author.voice.channel
-
-		try:
-			requests.get(song)
-			yt = pytube.YouTube(song)
-		except:
-			yt = pytube.Search(song).results[0]
-		
-		stream = yt.streams.filter(only_audio=True).first()
-		destiny = stream.download(filename=f".\\cogs\\music_cog\\music_cache\\{str(ctx.guild.id)}")
-		file = destiny
-		audio = discord.FFmpegPCMAudio(source=destiny)
 
 		if not channel:
 			await ctx.send("youre not in a channel")
@@ -277,27 +286,53 @@ class MusicCommands(commands.Cog):
 		if not music:
 			await ctx.send("am not in channel")
 			return
+		if song:
+			try:
+				requests.get(song)
+				yt = pytube.YouTube(song)
+			except:
+				yt = pytube.Search(song).results[0]
+		else:
+			try:
+				yt = self.queues[str(ctx.guild.id)]["queue"][0]
+			except KeyError:
+				await ctx.send("no songs in queue")
+				return
+		
+		try:
+			self.queues[str(ctx.guild.id)]["queue"].append(yt)
+			index = self.queue_skip(ctx.guild)
+		except KeyError:
+			self.queue_reinit(ctx.guild)
+			self.queues[str(ctx.guild.id)]["queue"].append(yt)
+			index = self.queue_skip(ctx.guild)
+		stream = yt.streams.filter(only_audio=True).first()
+		destiny = stream.download(filename=f".\\cogs\\music_cog\\music_cache\\{str(ctx.guild.id)}")
+		# file = destiny destiny is none??? what
+		audio = discord.FFmpegPCMAudio(source=destiny)
 
-		def replay():
-			# if str(ctx.guild.id) in self.loops: test
-			if str(ctx.guild.id) in self.loops: # test
-				source = discord.FFmpegPCMAudio(source=file)	
-			else: # go next in queue
-				index = self.queue_skip(ctx.guild)
-				if not index: # no queue has been made
-					return
-				yt = self.queues[str(ctx.guild.id)]["queue"][index]
+		
+
+		def replay(pre_index,file,msg): # get previouis index so we can tell if we screwed with the indexes using queue control
+			if str(ctx.guild.id) in self.loops:
+				source = discord.FFmpegPCMAudio(source=file)
+				nindex = 0
+			elif str(ctx.guild.id) in self.conts: # go next in queue
+				nindex = self.queues[str(ctx.guild.id)]["index"] # new index
+				if nindex == pre_index:
+					nindex = self.queue_skip(ctx.guild)
+				yt = self.queues[str(ctx.guild.id)]["queue"][nindex]
 				stream = yt.streams.filter(only_audio=True).first()
 				destiny = stream.download(filename=f"./cogs/music_cog/music_cache/{str(ctx.guild.id)}")
 				source = discord.FFmpegPCMAudio(source=destiny)
-			music.play(source,after=lambda bruh: replay())
-			music.source = discord.PCMVolumeTransformer(music.source,volume=self.volumes.get(ctx.guild.id,float(self.config["MUSIC"]["volume"])))
+				music.play(source,after=lambda bruh: replay(nindex,destiny,msg))
+				music.source = discord.PCMVolumeTransformer(music.source,volume=self.volumes.get(ctx.guild.id,float(self.config["MUSIC"]["volume"])))
 
 		if music.is_playing():
 			music.stop()
-		music.play(audio,after=lambda check: replay())
+		msg = await ctx.send(f"playing {stream.title}",view=self.MusicControl(outer=self))
+		music.play(audio,after=lambda check: replay(index,destiny,msg))
 		music.source = discord.PCMVolumeTransformer(music.source,volume=self.volumes.get(ctx.guild.id,float(self.config["MUSIC"]["volume"])))
-		await ctx.send(f"playing {stream.title}",view=self.MusicControl(outer=self))
 	
 	@commands.command()
 	async def queue(self, ctx, *, song): # add yt object to queues

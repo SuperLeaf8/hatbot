@@ -62,11 +62,12 @@ class GamesCommands(commands.Cog):
 
         # Function to check if the user's response is correct
         def check(m):
-            return m.author == ctx.author and m.content.lower() == data[rand_index]['name'].lower()
+            return m.content.lower() in data[rand_index]['name'].lower() # and m.author == ctx.author
 
         try:
             user_response = await self.bot.wait_for('message', check=check, timeout=60)
             await ctx.send(f"Correct! The flag belongs to {data[rand_index]['name']}.")
+            self.flagguess.reset_cooldown(ctx)
         except asyncio.TimeoutError:
             await ctx.send(f"60 second timer's up! The correct answer was {data[rand_index]['name']}.")
         
