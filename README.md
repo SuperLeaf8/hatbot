@@ -12,10 +12,10 @@ ___
 ### DEPENDENCIES (if you want to run this yourself)
 
 - Python >= 3.10 interpreter
-- py-cord ||| (docs)[https://docs.pycord.dev/en/stable/] | (guide)[https://guide.pycord.dev/introduction]
+- py-cord ||| [docs](https://docs.pycord.dev/en/stable/) | [guide](https://guide.pycord.dev/introduction)
 - ffmpeg (music commands use the ffmpeg executable to run)
     - set the executable to be in Path on windows (user), you linux fellas can figure it out
-- pytube ||| (docs)[https://pytube.io/en/latest/] | (quickstart) [https://pytube.io/en/latest/user/quickstart.html]
+- pytube ||| [docs](https://pytube.io/en/latest/) | [quickstart](https://pytube.io/en/latest/user/quickstart.html)
 
 ___
 ### how to run the bot
