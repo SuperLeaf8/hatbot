@@ -135,7 +135,7 @@ class MusicCommands(commands.Cog):
 			music = get(interaction.client.voice_clients,guild=interaction.guild)
 			self.outer.queue_back(interaction.guild)
 			index = self.outer.queues[str(interaction.guild.id)]["index"]
-			await interaction.message.edit(content=f"playing {self.outer.queues[str(interaction.guild.id)]['queue'][index].name}")
+			# await interaction.message.edit(content=f"playing {self.outer.queues[str(interaction.guild.id)]['queue'][index].name}") # redundant i think
 			await interaction.response.defer()
 			music.stop()
 
@@ -180,7 +180,7 @@ class MusicCommands(commands.Cog):
 			music = get(interaction.client.voice_clients,guild=interaction.guild)
 			self.outer.queue_skip(interaction.guild) # dont include self.outer argument
 			index = self.outer.queues[str(interaction.guild.id)]["index"]
-			await interaction.message.edit(content=f"playing {self.outer.queues[str(interaction.guild.id)]['queue'][index].name}")
+			# await interaction.message.edit(content=f"playing {self.outer.queues[str(interaction.guild.id)]['queue'][index].name}") # redundant too
 			await interaction.response.defer()
 			music.stop()
 		
@@ -325,6 +325,10 @@ class MusicCommands(commands.Cog):
 				stream = yt.streams.filter(only_audio=True).first()
 				destiny = stream.download(filename=f"./cogs/music_cog/music_cache/{str(ctx.guild.id)}")
 				source = discord.FFmpegPCMAudio(source=destiny)
+				# edit_coro = msg.edit(content=f"playing {stream.title}",view=self.MusicControl(outer=self))
+				async def edit():
+					await msg.edit(content=f"playing {stream.title}")
+				asyncio.run_coroutine_threadsafe(edit(), self.bot.loop)
 				music.play(source,after=lambda bruh: replay(nindex,destiny,msg))
 				music.source = discord.PCMVolumeTransformer(music.source,volume=self.volumes.get(ctx.guild.id,float(self.config["MUSIC"]["volume"])))
 

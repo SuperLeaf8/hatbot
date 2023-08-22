@@ -1,10 +1,12 @@
 GENERAL:
     ☐ Change things into embeds (start with the queue control, there is a thumbnail_url attribute for Youtube objects)
-    ☐ only people who used the command should be able to control the music
-    ☐ fix flag guess game
+    ✔ fix flag guess game @done(23-08-21 22:21)
     ☐ async stuff as much as we can because its good [blocking](https://discordpy.readthedocs.io/en/stable/faq.html#what-does-blocking-mean)
 
 MUSIC:
+    ☐ switch to pytube async? [link](https://libraries.io/pypi/async-pytube)
+    ☐ only people who used the command should be able to control the music
+    ✔ edit message when auto moving queue @done(23-08-21 22:21)
     ☐ embeds for playing music refer to previous TODO section
 
 NOTES:

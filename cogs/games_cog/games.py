@@ -13,7 +13,7 @@ class GamesCommands(commands.Cog):
     # capital guesser ##########################################################################
     @commands.command()
     async def capitalguess(self, ctx):
-        with open("capitals.json","r") as capitals_file: # json file containing dictionary of all countries and their capital(s)
+        with open("./cogs/games_cog/capitals.json","r") as capitals_file: # json file containing dictionary of all countries and their capital(s)
             countries_capitals = json.load(capitals_file)
         country, capital = random.choice(list(countries_capitals.items()))
         # Send an embed message
@@ -39,7 +39,7 @@ class GamesCommands(commands.Cog):
 
 
         # URL template for flag images
-        flag_url_template = "https://www.worldometers.info/img/flags/{0}-flag.gif"
+        flag_url_template = "https://flagcdn.com/256x192/{0}.png"
         
         # Check if the url is valid, for the website has the flag
         ## if not, just reroll the index
@@ -52,8 +52,8 @@ class GamesCommands(commands.Cog):
             if not requests.get(flag_url).status_code == 404:
                 valid_url = True
 
-        print("Country Code:", country_code)
-        print("Flag URL:", flag_url)
+        # print("Country Code:", country_code)
+        # print("Flag URL:", flag_url)
 
         # Send an embed message
         embed = discord.Embed(title="Guess the Country", description=f"What country does this flag belong to?", color=discord.Color.magenta())
@@ -62,7 +62,7 @@ class GamesCommands(commands.Cog):
 
         # Function to check if the user's response is correct
         def check(m):
-            return m.content.lower() in data[rand_index]['name'].lower() # and m.author == ctx.author
+            return m.content.lower() in (data[rand_index]['name'].lower()).split(" ") # and m.author == ctx.author
 
         try:
             user_response = await self.bot.wait_for('message', check=check, timeout=60)
