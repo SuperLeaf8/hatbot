@@ -2,13 +2,48 @@ import discord
 from discord.ext import commands
 import datetime
 import asyncio
+import aiohttp
+from modules import async_json
+
 import random
 
 class ModCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
     
+    @commands.Cog.listener()
+    async def on_message(self,msg):
+        
+        leetdict = { # update with leet letters, syntax being {"letter": ["leetletter1","leetletter2",. . ."leetletter"]}
+            "a": ["4","&","@"],
+            "i": ["!","1"],
+            "e": ["3"],
+            "h": ["#","4"],
+            "t": ["+","7"],
+            "o": ["0"],
+            "g": ["6","9"],
+            "s": ["$"]
+        }
+        rawmsg = ""
+        bads = await async_json.async_read_json("bad.json",[])
+        for i in msg.content.lower(): # this converts leet speek letters into regular to avoid bypasses
+            convert = False
+            for letter, leet in leetdict.items():
+                if i in leet:
+                    convert = True
+                    rawmsg += letter
+            if not convert:
+                rawmsg += i
+        for bad in bads: # also make it to detect leet speak
+            if bad in rawmsg:
+                await msg.delete()
+                rmsg = await msg.channel.send(f"{msg.author.mention} bad")
+                await asyncio.sleep(2)
+                await rmsg.delete()
+        await self.bot.process_commands(msg)
+
     @commands.command()
+    @commands.has_permissions(ban_members=True)
     async def ban(self, ctx, member: discord.Member, *, reason=None):
         if ctx.author.guild_permissions.ban_members:
             await member.ban(reason=reason)
@@ -17,6 +52,7 @@ class ModCommands(commands.Cog):
             await ctx.send('You do not have permission to use this command.')
 
     @commands.command()
+    @commands.has_permissions(moderate_members=True)
     async def unban(self, ctx, user_id: int, *, reason="No reason provided."):
         #Unban a user by ID
         user = await self.bot.fetch_user(user_id)
@@ -27,6 +63,7 @@ class ModCommands(commands.Cog):
             await ctx.send("User not found.")
 
     @commands.command()
+    @commands.has_permissions(kick_members=True)
     async def kick(self, ctx, member: discord.Member, *, reason=None):
         if ctx.author.guild_permissions.kick_members:
             await member.kick(reason=reason)
@@ -34,7 +71,8 @@ class ModCommands(commands.Cog):
         else:
             await ctx.send('You do not have permission to use this command.')
 
-    @commands.command()
+    @commands.command(aliases=["timeout"])
+    @commands.has_permissions(moderate_members=True)
     async def mute(self, ctx, member: discord.Member, duration="1d", *, reason="No reason lol"):
         # time = duration.split(" ")[0] # get the FIRST time duration
         time = duration
@@ -63,8 +101,7 @@ class ModCommands(commands.Cog):
             case _:
                 await ctx.respond("Not valid duration unit")
                 return
-
-        if ctx.author.guild_permissions.administrator:
+        try:
             await member.timeout_for(
                 duration=datetime.timedelta(
                     weeks=timedeltas["weeks"],
@@ -75,17 +112,20 @@ class ModCommands(commands.Cog):
                 reason=reason
                 )
             await ctx.send(f'{member.mention} has been muted.')
+        except:
+            await ctx.send(f'{member.mention} is not muted.')
 
-    @commands.command()
+    @commands.command(aliases=["untimeout"])
+    @commands.has_permissions(moderate_members=True)
     async def unmute(self, ctx, member: discord.Member):
-        if ctx.author.guild_permissions.administrator:
+        try:
             await member.remove_timeout()
             await ctx.send(f'{member.mention} has been unmuted.')
-        else:
+        except:
             await ctx.send('User is not muted.')
     
     @commands.command()
-    @commands.has_permissions(administrator=True)
+    @commands.has_permissions(manage_messages=True)
     async def purge(self, ctx, amt:int):
         await ctx.channel.purge(limit = int(amt) + 1)
         msg = await ctx.send(f"Purged {amt} messages.")
