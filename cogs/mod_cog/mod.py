@@ -10,10 +10,49 @@ import random
 class ModCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.modmails = []
     
+    class ModmailMessage:
+        def __init__(self, modmsg, usermsg):
+            self.modmsg = modmsg
+            self.usermsg = usermsg
+
+    async def modmail_dm(self, msg: discord.Message):
+        channelid = 1143930181099212921 # hat nation modmail channel, you will want to use a different method if bot is used in other servers
+        channel = self.bot.get_channel(channelid)
+        msg = await channel.send(f"{msg.author.name} to HatBot:\n\n \"{msg.content}\"")
+        return msg
+    
+    class ModmailModal(discord.ui.Modal):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.add_item(discord.ui.InputText(label="Message",style=discord.InputTextStyle.long))
+            self.response = None
+
+        async def callback(self, interaction: discord.Interaction):
+            # respond to dm using self.modmails and modmailmessage class
+            self.response = self.children[0].value
+            await interaction.response.defer()
+            
+
+    @commands.message_command()
+    async def reply(self,ctx,msg):
+        for modmail in self.modmails:
+            if modmail.modmsg == msg:
+                modal = self.ModmailModal(title="Modal via Slash Command")
+                channel = self.bot.get_channel(1143930181099212921)
+                await ctx.send_modal(modal)
+                await modal.wait()
+                await channel.send(f"HatBot (mod: {ctx.author.name}) to {modmail.usermsg.author.name}:\n\n \"{modal.response}\"")
+                await modmail.usermsg.channel.send(modal.response)
+
     @commands.Cog.listener()
     async def on_message(self,msg):
-        
+        # mod mail
+        if (not msg.guild) and (msg.author != self.bot.user):
+            modmsg = await self.modmail_dm(msg)
+            self.modmails.append(self.ModmailMessage(modmsg,msg))
+        # bad word
         leetdict = { # update with leet letters, syntax being {"letter": ["leetletter1","leetletter2",. . ."leetletter"]}
             "a": ["4","&","@"],
             "i": ["!","1"],
@@ -40,7 +79,6 @@ class ModCommands(commands.Cog):
                 rmsg = await msg.channel.send(f"{msg.author.mention} bad")
                 await asyncio.sleep(2)
                 await rmsg.delete()
-        await self.bot.process_commands(msg)
 
     @commands.command()
     @commands.has_permissions(ban_members=True)
@@ -201,3 +239,4 @@ class ModCommands(commands.Cog):
         await channel.edit(slowmode_delay=interval)
         if interval != 0:
             await ctx.send(f"Slowmode has been set to {interval} seconds in {channel.mention}.")
+    

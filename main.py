@@ -9,22 +9,24 @@ from cogs import basic_cog, mod_cog, games_cog, music_cog
 # initial bot stuff
 intents = discord.Intents.all()
 intents.message_content = True
-bot = commands.Bot(command_prefix="d/",intents=intents)
+bot = commands.Bot(command_prefix="h/",intents=intents)
 bot.remove_command("help")
 
 # barebone events
 @bot.event
 async def on_ready():
     print(f"online in {[x.name for x in bot.guilds]}")
-    # cogs
-    cogs = [
-        basic_cog.cog,
-        mod_cog.cog,
-        games_cog.cog,
-        music_cog.cog
-        ]
-    for cog in cogs:
-        bot.add_cog(cog(bot))
+
+cogs = [
+    basic_cog.cog,
+    mod_cog.cog,
+    games_cog.cog,
+    music_cog.cog
+    ]
+for cog in cogs:
+    bot.add_cog(cog(bot))
+
+# bot.load_extension("cogs.basic_cog.basic")
 
 @bot.event
 async def on_command_error(ctx, error):

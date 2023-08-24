@@ -292,6 +292,14 @@ class MusicCommands(commands.Cog):
 				yt = pytube.YouTube(song)
 			except:
 				yt = pytube.Search(song).results[0]
+			try:
+				self.queues[str(ctx.guild.id)]["queue"].append(yt)
+				index = self.queue_skip(ctx.guild)
+			except KeyError:
+				self.queue_reinit(ctx.guild)
+				self.queues[str(ctx.guild.id)]["queue"].append(yt)
+				index = self.queue_skip(ctx.guild)
+		
 		else:
 			try:
 				yt = self.queues[str(ctx.guild.id)]["queue"][0]
@@ -299,16 +307,8 @@ class MusicCommands(commands.Cog):
 				await ctx.send("no songs in queue")
 				return
 		
-		try:
-			self.queues[str(ctx.guild.id)]["queue"].append(yt)
-			index = self.queue_skip(ctx.guild)
-		except KeyError:
-			self.queue_reinit(ctx.guild)
-			self.queues[str(ctx.guild.id)]["queue"].append(yt)
-			index = self.queue_skip(ctx.guild)
 		stream = yt.streams.filter(only_audio=True).first()
 		destiny = stream.download(filename=f".\\cogs\\music_cog\\music_cache\\{str(ctx.guild.id)}")
-		# file = destiny destiny is none??? what
 		audio = discord.FFmpegPCMAudio(source=destiny)
 
 		
@@ -316,7 +316,7 @@ class MusicCommands(commands.Cog):
 		def replay(pre_index,file,msg): # get previouis index so we can tell if we screwed with the indexes using queue control
 			if str(ctx.guild.id) in self.loops:
 				source = discord.FFmpegPCMAudio(source=file)
-				nindex = 0
+				nindex = pre_index
 			elif str(ctx.guild.id) in self.conts: # go next in queue
 				nindex = self.queues[str(ctx.guild.id)]["index"] # new index
 				if nindex == pre_index:
@@ -329,8 +329,8 @@ class MusicCommands(commands.Cog):
 				async def edit():
 					await msg.edit(content=f"playing {stream.title}")
 				asyncio.run_coroutine_threadsafe(edit(), self.bot.loop)
-				music.play(source,after=lambda bruh: replay(nindex,destiny,msg))
-				music.source = discord.PCMVolumeTransformer(music.source,volume=self.volumes.get(ctx.guild.id,float(self.config["MUSIC"]["volume"])))
+			music.play(source,after=lambda bruh: replay(nindex,destiny,msg))
+			music.source = discord.PCMVolumeTransformer(music.source,volume=self.volumes.get(ctx.guild.id,float(self.config["MUSIC"]["volume"])))
 
 		if music.is_playing():
 			music.stop()

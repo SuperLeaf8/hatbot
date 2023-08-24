@@ -4,6 +4,7 @@ GENERAL:
     ☐ async stuff as much as we can because its good [blocking](https://discordpy.readthedocs.io/en/stable/faq.html#what-does-blocking-mean)
         - this means aiohttp, pytube async, aiofiles, async for (at least try)
     ☐ help command. IMPORTANT
+    ☐ remember `outer`? we may be able to get rid of this by creating an instance of the view outside of the ctx.send function. check `mod.py` modmail
 
 MUSIC:
     ☐ switch to pytube async? [link](https://libraries.io/pypi/async-pytube)
@@ -13,6 +14,9 @@ MUSIC:
 
 MOD:
     ☐ make it so people with similar or smaller role tiers in hiearchy cant do action on another user
+    ☐ mod logs
+    ☐ mod mail
+    ☐ check if bad words are similar
 
 NOTES:
     - soo since we are using inner and outer classes (bad idea, but we have to for the structure of the commands), we need to use different instances of "self" in order to have the inner class (ui.View) be able to use the outer class attributes (commands.Cog) send help
