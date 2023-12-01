@@ -10,7 +10,7 @@ from cogs import basic_cog, mod_cog, games_cog, music_cog
 intents = discord.Intents.all()
 intents.message_content = True
 bot = commands.Bot(command_prefix="h/",intents=intents)
-# bot.remove_command("help")
+bot.remove_command("help")
 
 # barebone events
 @bot.event

@@ -3,6 +3,51 @@ from discord.ext import commands
 import requests
 import random
 
+# Define categories
+categories = {
+    "Fun": ["cat", "dog", "flip"],
+    "Games": ["capitalguess", "flagguess", "unscramble"],
+    "Moderation": ["modmail_dm", "reply", "ban", "kick", "mute", "unmute", "purge", "deafen", "undeafen", "voicemute", "unvoicemute", "whois", "slowmode"],
+    "Voice": ["join", "leave", "testplay"],
+    "Music": ["play", "queue", "queuels", "clearqueue", "loop", "pause", "resume", "setvolume", "volume"],
+}
+
+# Define help messages for each command
+help_messages = {
+    "cat": "Displays a random cat image.",
+    "dog": "Displays a random dog image.",
+    "flip": "Flips a coin.",
+    "capitalguess": "Initiates a capital guessing game.",
+    "flagguess": "Initiates a flag guessing game.",
+    "unscramble": "Initiates a word unscrambling game.",
+    "modmail_dm": "Initiates a message to modmail.",
+    "reply": "Replies to a modmail message.",
+    "ban": "Bans a user.",
+    "kick": "Kicks a user.",
+    "mute": "Chat mutes a user.",
+    "unmute": "Removes chat mute from a user.",
+    "purge": "Purges a set number of messages.",
+    "deafen": "Deafens a user's voice.",
+    "undeafen": "Undeafens a user's voice.",
+    "voicemute": "Voice mutes a user.",
+    "unvoicemute": "Unvoice mutes a user.",
+    "whois": "Displays various information regarding a profile.",
+    "slowmode": "Enables slowmode for a designated channel.",
+    "join": "Summons the bot to a voice channel.",
+    "leave": "Removes the bot from the current voice channel.",
+    "testplay": "Summons bot to voice channel and plays a test tune.",
+    "play": "Plays a specified song.",
+    "queue": "Displays the song queue.",
+    "queuels": "Displays the queue list.",
+    "clearqueue": "Clears the queue.",
+    "loop": "Loops the current song.",
+    "pause": "Pauses the current song.",
+    "resume": "Resumes the current song.",
+    "setvolume": "Sets the volume to a certain amount.",
+    "volume": "Displays the current volume.",
+}
+
+
 class BasicCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot # gives the cog a bot instance so we can do bot stuff LOL! ex:    self.bot.name returns bot name
@@ -67,5 +112,18 @@ class BasicCommands(commands.Cog):
     async def button(self, ctx):
         await ctx.send("hello",view=self.MyView())
     
-def setup(bot):
-    bot.add_cog(BasicCommands(bot))
+    @commands.command()
+    async def help(self, ctx, command=None):
+        if command is None:
+            # If no specific command is provided, display help for all categories
+            embed = discord.Embed(title="Bot Commands", color=discord.Color.blue())
+            for category, commands_list in categories.items():
+                embed.add_field(name=category, value=", ".join(commands_list), inline=False)
+            await ctx.send(embed=embed)
+        else:
+            # If a specific command is provided, display help for that command
+            if command in help_messages:
+                embed = discord.Embed(title=f"Help for {command}", description=help_messages[command], color=discord.Color.green())
+                await ctx.send(embed=embed)
+            else:
+                await ctx.send("Command not found.")

@@ -6,7 +6,7 @@ GENERAL:
     ☐ help command. IMPORTANT
     ☐ remember `outer`? we may be able to get rid of this by creating an instance of the view outside of the ctx.send function. check `mod.py` modmail
     ☐ when using UI, use own async functions so regular commands work too
-    ☐ 
+    ☐ help cmd shows arg. (req and opt)
 
 MUSIC:
     ☐ switch to pytube async? [link](https://libraries.io/pypi/async-pytube)
