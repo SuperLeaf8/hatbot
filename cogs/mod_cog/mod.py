@@ -10,7 +10,7 @@ import random
 class ModCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.modmails = []
+        self.modmails = [] # if used as public bot, make this a dict with keys being server ids, and values being lists of modmailmessage objects
     
     class ModmailMessage:
         def __init__(self, modmsg, usermsg):
@@ -83,11 +83,10 @@ class ModCommands(commands.Cog):
     @commands.command()
     @commands.has_permissions(ban_members=True)
     async def ban(self, ctx, member: discord.Member, *, reason=None):
-        if ctx.author.guild_permissions.ban_members:
-            await member.ban(reason=reason)
-            await ctx.send(f'Banned {member.mention}')
-        else:
-            await ctx.send('You do not have permission to use this command.')
+        if ctx.author.top_role <= member.top_role:
+            raise commands.errors.MissingPermissions
+        await member.ban(reason=reason)
+        await ctx.send(f'Banned {member.mention}')
 
     @commands.command()
     @commands.has_permissions(moderate_members=True)
@@ -103,16 +102,17 @@ class ModCommands(commands.Cog):
     @commands.command()
     @commands.has_permissions(kick_members=True)
     async def kick(self, ctx, member: discord.Member, *, reason=None):
-        if ctx.author.guild_permissions.kick_members:
-            await member.kick(reason=reason)
-            await ctx.send(f'Kicked {member.mention}')
-        else:
-            await ctx.send('You do not have permission to use this command.')
+        if ctx.author.top_role <= member.top_role:
+            raise commands.errors.MissingPermissions
+        await member.kick(reason=reason)
+        await ctx.send(f'Kicked {member.mention}')
 
     @commands.command(aliases=["timeout"])
     @commands.has_permissions(moderate_members=True)
     async def mute(self, ctx, member: discord.Member, duration="1d", *, reason="No reason lol"):
         # time = duration.split(" ")[0] # get the FIRST time duration
+        if ctx.author.top_role <= member.top_role:
+            raise commands.errors.MissingPermissions
         time = duration
         timedeltas = {
             "weeks": 0,
@@ -156,6 +156,8 @@ class ModCommands(commands.Cog):
     @commands.command(aliases=["untimeout"])
     @commands.has_permissions(moderate_members=True)
     async def unmute(self, ctx, member: discord.Member):
+        if ctx.author.top_role <= member.top_role:
+            raise commands.errors.MissingPermissions
         try:
             await member.remove_timeout()
             await ctx.send(f'{member.mention} has been unmuted.')
@@ -172,6 +174,8 @@ class ModCommands(commands.Cog):
     
     @commands.command()
     async def deafen(self, ctx, member: discord.Member):
+        if ctx.author.top_role <= member.top_role:
+            raise commands.errors.MissingPermissions
         if not member.voice:
             await ctx.send("The mentioned user is not in a voice channel.")
             return
@@ -180,6 +184,8 @@ class ModCommands(commands.Cog):
     
     @commands.command()
     async def undeafen(self, ctx, member: discord.Member):
+        if ctx.author.top_role <= member.top_role:
+            raise commands.errors.MissingPermissions
         if not member.voice:
             await ctx.send("The mentioned user is not in a voice channel.")
             return
@@ -188,6 +194,8 @@ class ModCommands(commands.Cog):
     
     @commands.command()
     async def voicemute(self, ctx, member: discord.Member):
+        if ctx.author.top_role <= member.top_role:
+            raise commands.errors.MissingPermissions
         if not member.voice:
             await ctx.send("The mentioned user is not in a voice channel.")
             return
@@ -197,6 +205,8 @@ class ModCommands(commands.Cog):
 
     @commands.command()
     async def unvoicemute(self, ctx, member: discord.Member):
+        if ctx.author.top_role <= member.top_role:
+            raise commands.errors.MissingPermissions
         if not member.voice:
             await ctx.send("The mentioned user is not in a voice channel.")
             return
@@ -224,7 +234,7 @@ class ModCommands(commands.Cog):
     
     @commands.command()
     @commands.has_permissions(manage_channels=True)
-    async def slowmode(self, ctx, channel: discord.TextChannel, interval: int):
+    async def slowmode(self, ctx, channel: discord.TextChannel, interval: int=0):
         if interval == 0:
             await ctx.send(f"Slowmode has been removed in {channel.mention}.")
         

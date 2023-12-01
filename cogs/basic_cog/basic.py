@@ -7,7 +7,7 @@ class BasicCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot # gives the cog a bot instance so we can do bot stuff LOL! ex:    self.bot.name returns bot name
     
-    @commands.slash_command(guild_ids=[1134485341768782049])
+    @commands.slash_command()
     async def test(self, ctx: discord.ApplicationContext, bollocks):
         await ctx.respond('test')
         await ctx.send(bollocks)

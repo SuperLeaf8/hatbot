@@ -5,17 +5,21 @@ GENERAL:
         - this means aiohttp, pytube async, aiofiles, async for (at least try)
     ☐ help command. IMPORTANT
     ☐ remember `outer`? we may be able to get rid of this by creating an instance of the view outside of the ctx.send function. check `mod.py` modmail
+    ☐ when using UI, use own async functions so regular commands work too
+    ☐ 
 
 MUSIC:
     ☐ switch to pytube async? [link](https://libraries.io/pypi/async-pytube)
     ☐ only people who used the command should be able to control the music
-    ✔ edit message when auto moving queue @done(23-08-21 22:21)
     ☐ embeds for playing music refer to previous TODO section
+    ☐ disable command for server when working on playing (play function)
+    ☐ BUG: replays after using stop command
 
 MOD:
     ☐ make it so people with similar or smaller role tiers in hiearchy cant do action on another user
     ☐ mod logs
-    ☐ mod mail
+    ☐ mod mail (make it so bot sees mutual servers and lets you choose using menu maybe? (definitely))
+    ☐ setup commands for modmail and modlogs (create system for server config?)
     ☐ check if bad words are similar
 
 NOTES:

@@ -188,7 +188,7 @@ class MusicCommands(commands.Cog):
 			label="Shuffle", style=discord.ButtonStyle.primary
 		)
 		async def shuffle_button(self, button, interaction):
-			self.outer.queue_shuffle(self.outer, interaction.guild)
+			self.outer.queue_shuffle(interaction.guild)
 		
 		@discord.ui.button(
 			label="Loop", style=discord.ButtonStyle.secondary
@@ -314,9 +314,14 @@ class MusicCommands(commands.Cog):
 		
 
 		def replay(pre_index,file,msg): # get previouis index so we can tell if we screwed with the indexes using queue control
+			music = get(self.bot.voice_clients,guild=ctx.guild)
+			channel = ctx.author.voice.channel
+			if music.is_playing():
+				music.stop()
 			if str(ctx.guild.id) in self.loops:
 				source = discord.FFmpegPCMAudio(source=file)
-				nindex = pre_index
+				music.play(source,after=lambda after: replay(pre_index,file,msg))
+				music.source = discord.PCMVolumeTransformer(music.source,volume=self.volumes.get(ctx.guild.id,float(self.config["MUSIC"]["volume"])))
 			elif str(ctx.guild.id) in self.conts: # go next in queue
 				nindex = self.queues[str(ctx.guild.id)]["index"] # new index
 				if nindex == pre_index:
@@ -329,13 +334,13 @@ class MusicCommands(commands.Cog):
 				async def edit():
 					await msg.edit(content=f"playing {stream.title}")
 				asyncio.run_coroutine_threadsafe(edit(), self.bot.loop)
-			music.play(source,after=lambda bruh: replay(nindex,destiny,msg))
-			music.source = discord.PCMVolumeTransformer(music.source,volume=self.volumes.get(ctx.guild.id,float(self.config["MUSIC"]["volume"])))
+				music.play(source,after=lambda after: replay(nindex,destiny,msg))
+				music.source = discord.PCMVolumeTransformer(music.source,volume=self.volumes.get(ctx.guild.id,float(self.config["MUSIC"]["volume"])))
 
 		if music.is_playing():
 			music.stop()
 		msg = await ctx.send(f"playing {stream.title}",view=self.MusicControl(outer=self))
-		music.play(audio,after=lambda check: replay(index,destiny,msg))
+		music.play(audio,after=lambda after: replay(index,destiny,msg))
 		music.source = discord.PCMVolumeTransformer(music.source,volume=self.volumes.get(ctx.guild.id,float(self.config["MUSIC"]["volume"])))
 	
 	@commands.command()
@@ -372,6 +377,10 @@ class MusicCommands(commands.Cog):
 			await ctx.send("none")
 			return
 		await ctx.send(msg)
+
+	@commands.command()
+	async def clearqueue(self,ctx):
+		self.queue_reinit(ctx.guild)
 
 	@commands.command() # debug command
 	async def testfile(self,ctx):
@@ -464,6 +473,9 @@ class MusicCommands(commands.Cog):
 			await ctx.send("im not playing anything")
 			return
 		vol = float(number/100)
+		if not 0 <= vol <= 2:
+			await ctx.send("fuck off")
+			return
 		if ctx.guild.id not in self.volumes.keys():
 			self.volumes.update({ctx.guild.id:vol})
 		else:
