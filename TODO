@@ -3,10 +3,10 @@ GENERAL:
     ✔ fix flag guess game @done(23-08-21 22:21)
     ☐ async stuff as much as we can because its good [blocking](https://discordpy.readthedocs.io/en/stable/faq.html#what-does-blocking-mean)
         - this means aiohttp, pytube async, aiofiles, async for (at least try)
-    ☐ help command. IMPORTANT
+    ✔ help command. IMPORTANT @done(23-11-30 22:23)
     ☐ remember `outer`? we may be able to get rid of this by creating an instance of the view outside of the ctx.send function. check `mod.py` modmail
     ☐ when using UI, use own async functions so regular commands work too
-    ☐ help cmd shows arg. (req and opt)
+    ✔ help cmd shows arg. (req and opt) @done(23-12-01 19:17)
 
 MUSIC:
     ☐ switch to pytube async? [link](https://libraries.io/pypi/async-pytube)

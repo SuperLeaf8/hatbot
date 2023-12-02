@@ -7,7 +7,7 @@ import random
 categories = {
     "Fun": ["cat", "dog", "flip"],
     "Games": ["capitalguess", "flagguess", "unscramble"],
-    "Moderation": ["modmail_dm", "reply", "ban", "kick", "mute", "unmute", "purge", "deafen", "undeafen", "voicemute", "unvoicemute", "whois", "slowmode"],
+    "Moderation": ["ban", "kick", "mute", "unmute", "purge", "deafen", "undeafen", "voicemute", "unvoicemute", "whois", "slowmode"],
     "Voice": ["join", "leave", "testplay"],
     "Music": ["play", "queue", "queuels", "clearqueue", "loop", "pause", "resume", "setvolume", "volume"],
 }
@@ -20,8 +20,6 @@ help_messages = {
     "capitalguess": "Initiates a capital guessing game.",
     "flagguess": "Initiates a flag guessing game.",
     "unscramble": "Initiates a word unscrambling game.",
-    "modmail_dm": "Initiates a message to modmail.",
-    "reply": "Replies to a modmail message.",
     "ban": "Bans a user.",
     "kick": "Kicks a user.",
     "mute": "Chat mutes a user.",
@@ -44,7 +42,40 @@ help_messages = {
     "pause": "Pauses the current song.",
     "resume": "Resumes the current song.",
     "setvolume": "Sets the volume to a certain amount.",
-    "volume": "Displays the current volume.",
+    "volume": "Displays the current volume."
+}
+
+# Define arguments for each command
+help_arguments = {
+    "cat": "No Arguments",
+    "dog": "No Arguments",
+    "flip": "No Arguments",
+    "capitalguess": "No Arguments",
+    "flagguess": "No Arguments",
+    "unscramble": "No Arguments",
+    "ban": "Required: Member\nOptional: Duration (integer), Reason (string)",
+    "kick": "Required: Member\nOptional: Reason (string)",
+    "mute": "Required: Member\nOptional: Duration (integer), Reason (string)",
+    "unmute": "Required: Member",
+    "purge": "Required: Amount (integer)",
+    "deafen": "Required: Member",
+    "undeafen": "Required: Member",
+    "voicemute": "Required: Member",
+    "unvoicemute": "Required: Member",
+    "whois": "Required: Member",
+    "slowmode": "Required: Channel, Interval (integer)",
+    "join": "No Arguments",
+    "leave": "No Arguments",
+    "testplay": "No Arguments",
+    "play": "Required: Song (string, link)",
+    "queue": "Required: Song (string, link)",
+    "queuels": "No Arguments",
+    "clearqueue": "No Arguments",
+    "loop": "No Arguments",
+    "pause": "No Arguments",
+    "resume": "No Arguments",
+    "setvolume": "Required: Volume (integer)",
+    "volume": "No Arguments",
 }
 
 
@@ -123,7 +154,13 @@ class BasicCommands(commands.Cog):
         else:
             # If a specific command is provided, display help for that command
             if command in help_messages:
+                # Include the command's help message
                 embed = discord.Embed(title=f"Help for {command}", description=help_messages[command], color=discord.Color.green())
+
+                # Include the command's argument requirements, if available
+                if command in help_arguments:
+                    embed.add_field(name="Argument Requirements", value=help_arguments[command], inline=False)
+
                 await ctx.send(embed=embed)
             else:
                 await ctx.send("Command not found.")
