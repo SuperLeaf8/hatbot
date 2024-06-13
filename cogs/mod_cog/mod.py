@@ -6,24 +6,26 @@ import aiohttp
 from modules import async_json
 
 import random
-
+disable = True
 class ModCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.modmails = [] # if used as public bot, make this a dict with keys being server ids, and values being lists of modmailmessage objects
+        self.modmail_channels = {} # when multi
     
     class ModmailMessage:
         def __init__(self, modmsg, usermsg):
             self.modmsg = modmsg
             self.usermsg = usermsg
 
-    async def modmail_dm(self, msg: discord.Message):
-        channelid = 1143930181099212921 # hat nation modmail channel, you will want to use a different method if bot is used in other servers
+    async def modmail_dm(self, msg: discord.Message, guild: discord.Guild=None):
+        # channelid = self.modmail_channels[guild.id] # gets the channel of the guild (how do we get guild?)
+        channelid = 1250611178745368626
         channel = self.bot.get_channel(channelid)
         msg = await channel.send(f"{msg.author.name} to HatBot:\n\n \"{msg.content}\"")
         return msg
     
-    class ModmailModal(discord.ui.Modal):
+    class ModmailModal(discord.ui.Modal): # the modal for sending a message with reply
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             self.add_item(discord.ui.InputText(label="Message",style=discord.InputTextStyle.long))
@@ -39,19 +41,19 @@ class ModCommands(commands.Cog):
     async def reply(self,ctx,msg):
         for modmail in self.modmails:
             if modmail.modmsg == msg:
-                modal = self.ModmailModal(title="Modal via Slash Command")
-                channel = self.bot.get_channel(1143930181099212921)
+                modal = self.ModmailModal(title="Send a reply to modmail")
                 await ctx.send_modal(modal)
                 await modal.wait()
-                await channel.send(f"HatBot (mod: {ctx.author.name}) to {modmail.usermsg.author.name}:\n\n \"{modal.response}\"")
+                await ctx.channel.send(f"HatBot (mod: {ctx.author.name}) to {modmail.usermsg.author.name}:\n\n \"{modal.response}\"")
                 await modmail.usermsg.channel.send(modal.response)
 
     @commands.Cog.listener()
     async def on_message(self,msg):
         # mod mail
-        if (not msg.guild) and (msg.author != self.bot.user):
-            modmsg = await self.modmail_dm(msg)
-            self.modmails.append(self.ModmailMessage(modmsg,msg))
+        if (not msg.guild) and (msg.author != self.bot.user): # someone dm'd modmail!
+            modmsg = await self.modmail_dm(msg) # use method to get WHICH server the modmail is going to, then include that in the parameters
+            # must change this to the selected guild
+            self.modmails.append(self.ModmailMessage(modmsg,msg)) # again, use that method and make it so it appends the modmailmsg object to the list of the key being guild id
         # bad word
         leetdict = { # update with leet letters, syntax being {"letter": ["leetletter1","leetletter2",. . ."leetletter"]}
             "a": ["4","&","@"],
@@ -74,7 +76,7 @@ class ModCommands(commands.Cog):
             if not convert:
                 rawmsg += i
         for bad in bads: # also make it to detect leet speak
-            if bad in rawmsg:
+            if (bad in rawmsg) and not disable:
                 await msg.delete()
                 rmsg = await msg.channel.send(f"{msg.author.mention} bad")
                 await asyncio.sleep(2)

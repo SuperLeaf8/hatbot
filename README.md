@@ -16,6 +16,7 @@ ___
 - ffmpeg (music commands use the ffmpeg executable to run)
     - set the executable to be in Path on windows (user), you linux fellas can figure it out
 - pytube ||| [docs](https://pytube.io/en/latest/) | [quickstart](https://pytube.io/en/latest/user/quickstart.html)
+- PyNaCl (for pycord to use voice)
 
 ___
 ### how to run the bot
