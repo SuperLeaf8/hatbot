@@ -164,10 +164,13 @@ class MusicCommands(commands.Cog):
 			if music.is_playing():
 				if str(interaction.guild.id) in self.outer.conts:
 					self.outer.conts.remove(str(interaction.guild.id))
+				if str(interaction.guild.id) in self.outer.loops:
+					self.outer.loops.remove(str(interaction.guild.id))
 				music.stop()
 				self.disable_all_items()
 				await interaction.response.edit_message(view=self) # after interaction has been responded to, use followup.send()
 				await interaction.followup.send("stopped")
+				
 			else:
 				self.disable_all_items()
 				await interaction.response.edit_message(view=self)
