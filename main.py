@@ -12,6 +12,7 @@ intents.message_content = True
 bot = commands.Bot(command_prefix="h/",intents=intents)
 bot.remove_command("help")
 
+
 # barebone events
 @bot.event
 async def on_ready():
@@ -25,14 +26,15 @@ cogs = [
     ]
 for cog in cogs:
     bot.add_cog(cog(bot))
-
-# bot.load_extension("cogs.basic_cog.basic")
-
+    commands = cog.get_commands(cog)
+    for c in commands:
+        bot.add_command(c)
 @bot.event
 async def on_command_error(ctx, error):
     form = f"```diff\n-{error}\n```"
     await ctx.send(form)
     traceback.print_exception(error)
+
 
 with open("token.json","r") as token_file:
     token = json.load(token_file)

@@ -83,10 +83,10 @@ class BasicCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot # gives the cog a bot instance so we can do bot stuff LOL! ex:    self.bot.name returns bot name
     
-    @commands.slash_command()
-    async def test(self, ctx: discord.ApplicationContext, bollocks):
-        await ctx.respond('test')
-        await ctx.send(bollocks)
+    # @commands.slash_command()
+    # async def test(self, ctx: discord.ApplicationContext, bollocks):
+    #     await ctx.respond('test')
+    #     await ctx.send(bollocks)
     
     @commands.command()
     async def get_avatar(self, ctx, user: discord.User):
@@ -144,7 +144,11 @@ class BasicCommands(commands.Cog):
         await ctx.send("hello",view=self.MyView())
     
     @commands.command()
-    async def help(self, ctx, command=None):
+    async def mutual(self, ctx):
+        await ctx.send(ctx.author.mutual_guilds)
+
+    @commands.command()
+    async def help(ctx, command=None):
         if command is None:
             # If no specific command is provided, display help for all categories
             embed = discord.Embed(title="Bot Commands", color=discord.Color.blue())

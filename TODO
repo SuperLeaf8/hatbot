@@ -19,8 +19,9 @@ MOD:
     ☐ make it so people with similar or smaller role tiers in hiearchy cant do action on another user
     ☐ mod logs
     ☐ mod mail (make it so bot sees mutual servers and lets you choose using menu maybe? (definitely))
+        - discord.User.mutual_guilds property, using multi-item menu for selection
     ☐ setup commands for modmail and modlogs (create system for server config?)
-    ☐ check if bad words are similar
+    ✘ check if bad words are similar @cancelled(24-06-13 10:13)
 
 NOTES:
     - soo since we are using inner and outer classes (bad idea, but we have to for the structure of the commands), we need to use different instances of "self" in order to have the inner class (ui.View) be able to use the outer class attributes (commands.Cog) send help

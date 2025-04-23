@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 from discord.utils import get
-import pytube
+import pytubefix
 ###
 import json
 from configparser import ConfigParser
@@ -15,7 +15,7 @@ class MusicCommands(commands.Cog):
 		self.bot = bot
 	
 	loops = []
-	conts = []
+	conts = [] # what the fuck did this do
 	volumes = {}
 	queues = {}
 
@@ -123,7 +123,6 @@ class MusicCommands(commands.Cog):
 				self.index = 0
 			await interaction.message.edit(content=f"song: {self.options[self.index].title}")
 			await interaction.response.defer()
-	
 	class MusicControl(discord.ui.View): # view object for controlling music while it is playing
 		def __init__(self, outer): # oh my GOD this is terrible, i dont even want to look at this, i know this is bad but i dont know how else to make it work
 			discord.ui.View.__init__(self,timeout=None)
@@ -292,9 +291,9 @@ class MusicCommands(commands.Cog):
 		if song:
 			try:
 				requests.get(song)
-				yt = pytube.YouTube(song)
+				yt = pytubefix.YouTube(song, 'WEB')
 			except:
-				yt = pytube.Search(song).results[0]
+				yt = pytubefix.Search(song, 'WEB').results[0]
 			try:
 				self.queues[str(ctx.guild.id)]["queue"].append(yt)
 				index = self.queue_skip(ctx.guild)
@@ -304,6 +303,7 @@ class MusicCommands(commands.Cog):
 				index = self.queue_skip(ctx.guild)
 		
 		else:
+			index = 0 # to make interpreter shut up
 			try:
 				yt = self.queues[str(ctx.guild.id)]["queue"][0]
 			except KeyError:
@@ -353,9 +353,9 @@ class MusicCommands(commands.Cog):
 
 		try:
 			requests.get(song)
-			yt = list(pytube.YouTube(song))
+			yt = list(pytubefix.YouTube(song))
 		except:
-			yt = pytube.Search(song).results
+			yt = pytubefix.Search(song).results
 		
 		if len(yt) > 1:
 			options = [yt[i] for i in range(min(5,len(yt)))] # when searching queue with words using pytube.Search, return first 5 yt objects

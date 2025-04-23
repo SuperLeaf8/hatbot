@@ -37,15 +37,15 @@ class ModCommands(commands.Cog):
             await interaction.response.defer()
             
 
-    @commands.message_command()
-    async def reply(self,ctx,msg):
-        for modmail in self.modmails:
-            if modmail.modmsg == msg:
-                modal = self.ModmailModal(title="Send a reply to modmail")
-                await ctx.send_modal(modal)
-                await modal.wait()
-                await ctx.channel.send(f"HatBot (mod: {ctx.author.name}) to {modmail.usermsg.author.name}:\n\n \"{modal.response}\"")
-                await modmail.usermsg.channel.send(modal.response)
+    # @commands.message_command()
+    # async def reply(self,ctx,msg):
+    #     for modmail in self.modmails:
+    #         if modmail.modmsg == msg:
+    #             modal = self.ModmailModal(title="Send a reply to modmail")
+    #             await ctx.send_modal(modal)
+    #             await modal.wait()
+    #             await ctx.channel.send(f"HatBot (mod: {ctx.author.name}) to {modmail.usermsg.author.name}:\n\n \"{modal.response}\"")
+    #             await modmail.usermsg.channel.send(modal.response)
 
     @commands.Cog.listener()
     async def on_message(self,msg):
