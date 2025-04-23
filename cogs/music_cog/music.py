@@ -8,7 +8,7 @@ from configparser import ConfigParser
 import random
 import requests, os, asyncio
 from traceback import print_exc
-
+import ffmpeg
 
 class MusicCommands(commands.Cog):
 	def __init__(self, bot):
@@ -257,16 +257,16 @@ class MusicCommands(commands.Cog):
 		if not music:
 			await ctx.send("am not in channel")
 			return
-		# def replay():
-		# 	source = discord.FFmpegPCMAudio(f"{name}.mp3")
-		# 	if str(ctx.guild.id) in self.loops:
-		# 		music.play(source,after=lambda bruh: replay()) # THIS IS FUCKING CRASHING
-		# 		# music.source = discord.PCMVolumeTransformer(music.source,volume=self.volumes.get(ctx.guild.id,1.0))
+		def replay():
+			source = discord.FFmpegPCMAudio(f"./cogs/music_cog/{name}.mp3")
+			if str(ctx.guild.id) in self.loops:
+				music.play(source,after=lambda bruh: replay()) # THIS IS FUCKING CRASHING
+				# music.source = discord.PCMVolumeTransformer(music.source,volume=self.volumes.get(ctx.guild.id,1.0))
 		try:
 
-			# music.play(audio,after=lambda check: replay())
-			music.play(audio)
-			# music.source = discord.PCMVolumeTransformer(music.source,volume=self.volumes.get(ctx.guild.id,1.0))
+			music.play(audio,after=lambda check: replay())
+			# music.play(audio)
+			music.source = discord.PCMVolumeTransformer(music.source,volume=self.volumes.get(ctx.guild.id,1.0))
 			await ctx.send("vibe time")
 		except:
 			print_exc()
@@ -313,8 +313,6 @@ class MusicCommands(commands.Cog):
 		stream = yt.streams.filter(only_audio=True).first()
 		destiny = stream.download(filename=f".\\cogs\\music_cog\\music_cache\\{str(ctx.guild.id)}")
 		audio = discord.FFmpegPCMAudio(source=destiny)
-
-		
 
 		def replay(pre_index,file,msg): # get previouis index so we can tell if we screwed with the indexes using queue control
 			music = get(self.bot.voice_clients,guild=ctx.guild)
@@ -490,3 +488,4 @@ class MusicCommands(commands.Cog):
 	async def volume(self,ctx):
 		x = self.volumes.get(ctx.guild.id,float(self.config["MUSIC"]["volume"]))
 		await ctx.send(f"volume is currently {x*100}%")
+	
