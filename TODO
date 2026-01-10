@@ -8,12 +8,16 @@ GENERAL:
     ☐ when using UI, use own async functions so regular commands work too
     ✔ help cmd shows arg. (req and opt) @done(23-12-01 19:17)
 
+
 MUSIC:
     ☐ switch to pytube async? [link](https://libraries.io/pypi/async-pytube)
     ☐ only people who used the command should be able to control the music
     ☐ embeds for playing music refer to previous TODO section
     ☐ disable command for server when working on playing (play function)
-    ☐ BUG: replays after using stop command
+    ☐ BUG: replays after using stop command (use stopped dict to keep track of whether to allow next thing to play) @started(25-04-24 23:00)
+    ☐ BUG: interaction ui's no longer work idk why
+    
+
 
 MOD:
     ☐ make it so people with similar or smaller role tiers in hiearchy cant do action on another user

@@ -18,6 +18,7 @@ class MusicCommands(commands.Cog):
 	conts = [] # what the fuck did this do
 	volumes = {}
 	queues = {}
+	stopped = {}
 
 	config = ConfigParser()
 	config.read("options.cfg")
@@ -224,7 +225,8 @@ class MusicCommands(commands.Cog):
 
 	@commands.command()
 	async def join(self, ctx):
-		channel = self.check_channel(ctx)
+		# channel = self.check_channel(ctx)
+		channel = ctx.message.author.voice.channel
 		bot_voice = self.check_bot_channel(ctx)
 		if not channel:
 			await ctx.send("youre not in a channel")
@@ -241,6 +243,7 @@ class MusicCommands(commands.Cog):
 		if not voice:
 			await ctx.send("am not in channel")
 			return
+		
 		if str(ctx.guild.id) in self.loops:
 			self.loops.remove(str(ctx.guild.id))
 		await voice.disconnect()
