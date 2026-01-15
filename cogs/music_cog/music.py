@@ -10,26 +10,45 @@ import requests, os, asyncio
 from traceback import print_exc
 import ffmpeg
 
+class Queue:
+	def __init__(self, id):
+		# play-one (default), play-loop, stopped
+		# on play, it will look for Queue object or create one
+		self.id = id
+		self.status = "play-one"
+		self.list = [] # list of youtube objects to play
+		self.index = 0
+		self.volume = 0.5
+	def clear(self):
+		self.list = []
+	def next_index(self):
+		self.index += 1
+	def prev_index(self):
+		self.index -= 1
+	def shuffle(self):
+		random.shuffle(self.list)
+
 class MusicCommands(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 	
-	loops = []
-	conts = [] # what the fuck did this do
-	volumes = {}
-	queues = {}
-	stopped = {}
+	queues = []
 
 	config = ConfigParser()
 	config.read("options.cfg")
 
-	# getter functions
-	def get_loops(self):
-		return self.loops
-	def get_queues(self):
-		return self.queues
+	# getter function
+	def get_queue(self,id): # 
+		for q in self.queues:
+			if q.id == id:
+				return q
+		else:
+			q = Queue(id)
+			return q
+
 
 	# queue functions for ease
+	# DEPRECATED NO LONGER NEEDED
 	def queue_skip(self,server): # updates queue and index, will return the next index
 		try:
 			queue = self.queues[str(server.id)]["queue"] # queue is a list, index is an int
@@ -79,7 +98,7 @@ class MusicCommands(commands.Cog):
 			return None
 		queue = random.shuffle(queue)
 		self.queues[str(server.id)]["queue"] = queue
-		return queue
+		return queue # are we RETARDED
 
 	# music commands
 	# def play() . . .
