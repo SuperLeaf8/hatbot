@@ -15,6 +15,7 @@ MUSIC:
     ☐ embeds for playing music refer to previous TODO section
     ☐ disable command for server when working on playing (play function)
     ☐ BUG: replays after using stop command (use stopped dict to keep track of whether to allow next thing to play) @started(25-04-24 23:00)
+        use a dictionary of queues and their statuses? limit size, etc
     ☐ BUG: interaction ui's no longer work idk why
     
 
