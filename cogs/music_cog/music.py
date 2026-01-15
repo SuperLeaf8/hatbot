@@ -10,10 +10,16 @@ import requests, os, asyncio
 from traceback import print_exc
 import ffmpeg
 
+async def is_not_will(ctx):
+		return ctx.author.id != 581796899313418250
+async def is_den(ctx):
+	return ctx.author.id == 451900766958125076
+
 class MusicCommands(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 	
+	# just for william
 	loops = []
 	conts = [] # what the fuck did this do
 	volumes = {}
@@ -224,6 +230,12 @@ class MusicCommands(commands.Cog):
 		return voice
 
 	@commands.command()
+	@commands.check(is_den)
+	async def den(self,ctx):
+		await ctx.send("hi dennis")
+	
+	@commands.command()
+	@commands.check(is_not_will)
 	async def join(self, ctx):
 		# channel = self.check_channel(ctx)
 		channel = ctx.message.author.voice.channel
@@ -238,6 +250,7 @@ class MusicCommands(commands.Cog):
 			await ctx.send("im already in the channel idiot")
 
 	@commands.command()
+	@commands.check(is_not_will)
 	async def leave(self, ctx):
 		voice = get(self.bot.voice_clients,guild=ctx.guild)
 		if not voice:
@@ -275,6 +288,7 @@ class MusicCommands(commands.Cog):
 			print_exc()
 
 	@commands.command() # for fun
+	@commands.check(is_not_will)
 	async def play(self,ctx,*,song=""):
 		if not os.path.exists("./cogs/music_cog/music_cache"):
 			os.mkdir("./cogs/music_cog/music_cache")
@@ -492,3 +506,14 @@ class MusicCommands(commands.Cog):
 		x = self.volumes.get(ctx.guild.id,float(self.config["MUSIC"]["volume"]))
 		await ctx.send(f"volume is currently {x*100}%")
 	
+	@den.error
+	async def den_e(self, ctx, error):
+		if isinstance(error, commands.CheckFailure):
+			await ctx.send("not den")
+	
+	@play.error
+	@leave.error
+	@join.error
+	async def will_e(self, ctx, error):
+		if isinstance(error, commands.CheckFailure):
+			await ctx.send("fuck off will")
