@@ -14,7 +14,7 @@ config = ConfigParser()
 config.read("options.cfg")
 
 async def is_not_will(ctx):
-	banned = config.getboolean("ban_will")
+	banned = config.getboolean("MUSIC","ban_will")
 	return (ctx.author.id != 581796899313418250) and (not banned)
 async def is_den(ctx):
 	return ctx.author.id == 451900766958125076
