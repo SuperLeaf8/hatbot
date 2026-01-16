@@ -10,15 +10,19 @@ import requests, os, asyncio
 from traceback import print_exc
 import ffmpeg
 
+config = ConfigParser()
+config.read("options.cfg")
+
 async def is_not_will(ctx):
-		return ctx.author.id != 581796899313418250
+	banned = config.getboolean("ban_will")
+	return (ctx.author.id != 581796899313418250) and (not banned)
 async def is_den(ctx):
 	return ctx.author.id == 451900766958125076
 
 class MusicCommands(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
-	
+		self.config = config
 	# just for william
 	loops = []
 	conts = [] # what the fuck did this do
@@ -26,8 +30,7 @@ class MusicCommands(commands.Cog):
 	queues = {}
 	stopped = {}
 
-	config = ConfigParser()
-	config.read("options.cfg")
+	
 
 	# getter functions
 	def get_loops(self):
@@ -231,8 +234,15 @@ class MusicCommands(commands.Cog):
 
 	@commands.command()
 	@commands.check(is_den)
-	async def den(self,ctx):
-		await ctx.send("hi dennis")
+	async def ban_will(self,ctx,b: bool = True):
+		if b:
+			config["MUSIC"]["ban_will"] = "yes"
+			await ctx.send("banned will")
+		else:
+			config["MUSIC"]["ban_will"] = "no"
+			await ctx.send("unbanned will")
+		with open("options.cfg","w") as f:
+			config.write(f)
 	
 	@commands.command()
 	@commands.check(is_not_will)
@@ -506,7 +516,7 @@ class MusicCommands(commands.Cog):
 		x = self.volumes.get(ctx.guild.id,float(self.config["MUSIC"]["volume"]))
 		await ctx.send(f"volume is currently {x*100}%")
 	
-	@den.error
+	@ban_will.error
 	async def den_e(self, ctx, error):
 		if isinstance(error, commands.CheckFailure):
 			await ctx.send("not den")
